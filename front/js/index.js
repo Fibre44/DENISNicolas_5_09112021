@@ -29,7 +29,7 @@ fetch ("http://localhost:3000/api/products")
                                 '<h3>'+kanap.name+'</h3>'+
                                 '<p>'+kanap.description+'</p>'+
                             '</article>'+
-                            '</a>';    
+                            '</a>';  
       
     }
   }

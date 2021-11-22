@@ -1,82 +1,95 @@
 const cart = document.getElementById("cart__items");
-let totalQuantity = 0
-let totalPrice = 0
 
+let priceTotal =0;
 for( let i = 0; i < localStorage.length; i++){
-    let key = localStorage.key(i);
-    let id = key.substring(0,32);/*récupération de l'id dans la chaine de caractéres*/
-    let quantity = localStorage.getItem(key);    
-    totalQuantity += parseInt(quantity);
-    console.log ('Pour la clé '+key+' quantité = '+quantity);
-    console.log('total '+totalQuantity);
-    fetch("http://localhost:3000/api/products/"+id)
-    .then (function (res){
-        if (res.ok){
-          return res.json();
-          
-        }
-      })
-        .then (function (item) {
-            console.log(item);
-            let color = key.substring(32,key.length)
-            console.log ( 'key ='+id+' quantité'+quantity+' nom'+item.name);
-            const addItem = document.getElementById("cart__items");
-            addItem.innerHTML += '<article class="cart__item" data-id='+item._id+'>'+
-                                    '<div class="cart__item__img"><img src="'+item.imageUrl+'"alt=>'+                                
-                                   
-                                    '</div>'+
-                                    '<div class="cart__item__content">'+
-                                      '<div class="cart__item__content__titlePrice">'+
-                                        '<h2>'+item.name+'</h2>'+
-                                        '<p>'+item.price+'€</p>'+ 
-                                        '<p>Couleur ='+color+'</p>'+/*n 'existe pas dans le fichier cart à verifier*/
-                                        '</div>'+
-                                      '<div class="cart__item__content__settings">'+
-                                      '<div class="cart__item__content__settings__quantity">'+
-                                        '<p>'+quantity+'</p>'+
-                                        '<input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="42">'+
-                                      '</div>'+
-                                      '<div class="cart__item__content__settings__delete">'+
-                                        '<p class="deleteItem">Supprimer</p>'+
-                                      '</div>'+
-                                    '</div>'+
-                                  '</article>';
-                                  
-          /*Créer une fonction MAJ prix + quantité*/                        
-          totalPrice += parseInt(quantity)*parseInt(item.price);   
-          console.log ('Prix total = '+totalPrice);
-          const totalQuantitySpan = document.getElementById('totalQuantity');
-          totalQuantitySpan.innerHTML = totalQuantity;
-          const totalPriceSpan = document.getElementById('totalPrice');
-          totalPriceSpan.innerHTML = totalPrice;         
 
-        })
+  let key = localStorage.key(i);
+  let order = getLocalStorage(key);
+  let basket = {
+    orders : []
+  };
+  basket.orders.push(order,priceTotal);
+  priceTotal += order.price*order.quantity;
+  updateDomOrders(order);
+  updateDomArticlePrice(priceTotal,basket.orders.length);
 
 
-    .catch(function(err) {
+}
 
-        console.error('Impossible de récupérer l\id du kanap')
-    });
+function updateDomOrders(order){
+  try{
+    const addItem = document.getElementById("cart__items");
+    addItem.innerHTML += '<article class="cart__item" data-id='+order.id+'>'+
+                            '<div class="cart__item__img"><img src="'+order.img+'"alt=>'+                                                           
+                            '</div>'+
+                            '<div class="cart__item__content">'+
+                              '<div class="cart__item__content__titlePrice">'+
+                                '<h2>'+order.name+'</h2>'+
+                                '<p>'+order.price+'€</p>'+ 
+                                '<p>Couleur ='+order.color+'</p>'+/*n 'existe pas dans le fichier cart à verifier*/
+                                '</div>'+
+                              '<div class="cart__item__content__settings">'+
+                              '<div class="cart__item__content__settings__quantity">'+
+                                '<p>'+order.quantity+'</p>'+
+                                '<input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="42">'+
+                              '</div>'+
+                              '<div class="cart__item__content__settings__delete">'+
+                                '<p class="deleteItem">Supprimer</p>'+
+                              '</div>'+
+                            '</div>'+
+                          '</article>';
 
+  }
+  catch{
+    console.error('Erreur mise à jour du dom');
+  }
+  
+}
+const articles = document.getElementsByClassName("itemQuantity");
+  console.log('Suppression'+articles.length+'détail'+articles);      
+
+async function getQuantityBasket(){
+  const quantity = document.getElementsByClassName("itemQuantity");
+  return quantity;
+
+}
+for (let i = 0; i<articles.length;i++) {
+  button = articles[i];
+  button.addEventListener("click",async function(){
+    let quantity = await getQuantityBasket();
+    if(quantity> 42){
+      console.log ("+1")
+    }else{
+      console.log('-1');
+    }
+  })
+}
+
+
+function updateDomArticlePrice(price,articles){
+  try{
+    const addPrice = document.getElementById("totalPrice");
+    addPrice.innerHTML =price;
+    const addQuantity = document.getElementById("totalQuantity");
+    addQuantity.innerHTML = articles;
+  }
+  catch{
+    console.error('Erreur mise à jour totaux');
+  }
 }
 
 const orderButton = document.getElementById("order");
 orderButton.addEventListener('click', function(){
-  const firstNameInput = document.getElementById("firstName").value;
-  const lasttNameInput = document.getElementById("lastName").value;
-  const addressInput = document.getElementById("address").value;
-  const city = document.getElementById("city").value;
-  const email = document.getElementById("email").value;
+  
   let contact =  {
-     firstName: firstNameInput,
-     lastName: lasttNameInput,
-     address: addressInput,
-     city: city,
-     email: email
+     firstName: document.getElementById("firstName").value,
+     lastName: document.getElementById("lastName").value,
+     address: document.getElementById("address").value,
+     city: document.getElementById("city").value,
+     email: document.getElementById("email").value
    }
    contactJson = JSON.stringify(contact);
    console.log('contact'+contact);
-   console.log('contactJson'+contactJson);
 
    fetch ('http://localhost:3000/api/products/order',{
      method: "POST",
@@ -87,6 +100,17 @@ orderButton.addEventListener('click', function(){
     },
       body: JSON.stringify(contact)
 
-    });
+    })
+    .then (function (res){
+      if (res.ok){
+        return res.json();
+      }    
+    })
+    .then(function(res){
+      console.log('Retour du post'+res);
+    })
+    .catch(function(err){
+      console.error('Erreur lors du post');
+    })
 })
 

@@ -15,14 +15,16 @@ fetch("http://localhost:3000/api/products/"+product)
   })
     .then (function (item) {
 
-      console.log(item);
       addKanapImg(item);
       addKanapTitle(item);
       addKanapDescription (item);
       addKanapOptions (item);
       addKanapPrice (item);
 
+      kanap = newKanap(item._id,item.name,item.imageUrl,item.price);
+
     })
+
 
   .catch(function(err) {
 
@@ -67,72 +69,98 @@ function addKanapPrice (price){
  * @returns 
  */
 
-function newOrder(quantity,id,option){
+function newKanap (id,name,img,price){
+  let kanap = {
+    id:id,
+    name:name,
+    img:img,
+    price:price
+  }
+  return kanap;
+}
+function newOrder(id,color,quantity,name,img,price){
 
   let order = {
     id:id,
-    color:option,
-    quantity:quantity
+    color:color,
+    quantity:quantity,
+    name:name,
+    img:img,
+    price:price,
   }  
   return order;
 }
 
 function getQuantity(){
-  const addKanapsQuantity = document.getElementById('quantity').value;
-  return addKanapsQuantity;
+  const getQuantity = document.getElementById('quantity').value;
+  return getQuantity;
 }
 
-function getColor (){
-  const getOption = document.getElementById('colors').value;
-  return getOption;
+function getColor(){
+  const getColor = document.getElementById('colors').value;
+  return getColor;
 }
-/**
- * 
- * @returns Retourne au format JSON le détail du panier
- */
+
+function searchOrder(uuid){
+  try{
+    let search = localStorage.getItem(uuid);
+    if (search != undefined){
+      return true
+    }else{
+      return false
+    }
+  }
+  catch{
+    console.error('Erreur lors de la recherche de la commande');
+  }
+}
+
+function updateQuantity(uuid,quantity){
+  try{
+    let order = getLocalStorage(uuid);
+    let oldQuantity = order.quantity;
+    console.log ('Avant mise à jour la commande pour l id/color '+order.id+order.color+' contient '+order.quantity);
+    let newQuantity = parseInt(oldQuantity)+parseInt(quantity);
+    console.log('Ajout de '+quantity+' la fonction retourne'+newQuantity);
+    return newQuantity;
+
+  }
+  catch{
+    console.error('Erreur lors de la mise à jour de la commande');
+  }
+}
+
+
 
 
 const addBasketButton = document.getElementById('addToCart');
 addBasketButton.addEventListener('click', function(){
   try{
-
     /*Récupération des informations de la commande*/
-    let id = product;
     let quantity = getQuantity();
-    let option =  getColor();
+    let color =  getColor();
 
     /*Création de l'objet qui represente la commande*/
 
-    let order = newOrder(quantity,id,option);
-    console.log('Id du produit '+order.id+' la quantité est '+order.quantity+' la couleur est '+order.color);  
+    let order = newOrder(kanap.id,color,quantity,kanap.name,kanap.img,kanap.price);
+    console.log('Id du produit '+order.id+' la quantité est '+order.quantity+' la couleur est '+order.color+' le nom est '+order.name+' l image est stocké '+order.img);  
     
     /*ajout au panier*/ 
+    /*Recherche si la commande existe déjà */
+    let search = searchOrder(order.id+order.color);
+    if (search == true){
+      console.log('Mise à jour de la commande');
+      let newQuantity = updateQuantity(order.id+order.color,order.quantity);
+      order.quantity = newQuantity;
+      setLocalStorage(order.id+order.color,order);
 
-    let key = order.id+order.color
-    let searchKeyLocalStorage = localStorage.getItem(key);
-    console.log(searchKeyLocalStorage);
-    if (searchKeyLocalStorage == null){
-      console.log('La clé n existe pas dans le local storage');
-      localStorage.setItem(key,order.quantity);
-      searchKeyLocalStorage = localStorage.getItem(key);
-      console.log ('La valeur pour la clé '+key+'='+searchKeyLocalStorage);
     }else{
-      console.log('La clé existe dans le local storage avec la valeur '+searchKeyLocalStorage);
-      let addQuantity = parseInt(searchKeyLocalStorage) + parseInt(order.quantity);
-      console.log ('Ajout de la nouvelle quantité '+order.quantity);      
-      localStorage.setItem(key,addQuantity);
-      console.log('Solde avant '+searchKeyLocalStorage+' ajout de '+order.quantity+'='+addQuantity);
-      searchKeyLocalStorage = localStorage.getItem(key);
-      console.log ('La valeur pour la clé '+key+'='+searchKeyLocalStorage);
-
-
+      console.log('Nouvel commmande');
+      setLocalStorage(order.id+order.color,order);
     }
-
- 
-
+  
   }  
 
-/*https://tutowebdesign.com/localstorage-javascript.php*/
   catch{
     console.error('Erreur lors du passage de la commande')
   }
