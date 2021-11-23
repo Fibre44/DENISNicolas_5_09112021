@@ -1,35 +1,55 @@
 /*import {url} from './../js/function.js';
 console.log(url);*/
-fetch ("http://localhost:3000/api/products")
-    .then(function(items) {
-        if (items.ok) {
-        return items.json();
+function getAllKanaps () {
+    fetch ("http://localhost:3000/api/products")
+    .then(function(res) {
+        if (res.ok) {
+
+        return res.json();
         }
     })
         .then(function(kanaps) {
-            addItems(kanaps);
-            console.log ('Connexion à l \'API ok lancement de la MAJ du DOM')
+            addKanaps(kanaps);
         })
+        .catch(function(err){
+            console.error('Erreur lors de l ecriture sur la page',err);
+        })
+
     .catch(function(err) {
+        console.error('Impossible de joindre le serveur',err)
 
-        console.error('Impossible de joindre le serveur')
   });
+}
 
-  /**
-   * 
-   * @param {array} kanaps 
-   * La fonction va prendre l'ensemble des "kanaps" en paramétre puis va mettre à jour le DOM avec une boucle
-   */
+getAllKanaps()
 
-  function addItems (kanaps){
+
+  function addKanaps (kanaps){
       for (kanap of kanaps){
-        const addKanap = document.getElementById('items');
-        addKanap.innerHTML += '<a href=./../html/product.html?id='+kanap._id+'>'+
-                             '<article><img class="cart__item__img" src='+kanap.imageUrl+' alt='+kanap.altTxt+'>'+
-                                '<h3>'+kanap.name+'</h3>'+
-                                '<p>'+kanap.description+'</p>'+
-                            '</article>'+
-                            '</a>';  
+        //Gestion du lien
+
+        let urlKanap = document.createElement('a');
+        document.getElementById('items').appendChild(urlKanap);
+        urlKanap.href = './../html/product.html?id='+kanap._id;
+
+        let articleKanap = document.createElement('article');
+        urlKanap.appendChild(articleKanap);
+
+        let articleImg = document.createElement('img');
+        articleKanap.appendChild(articleImg);
+        articleImg.src = kanap.imageUrl;
+        articleImg.alt = kanap.altTxt;
+
+        let nameKanap = document.createElement('h3');
+        articleKanap.appendChild(nameKanap);
+        nameKanap.classList.add('productname');
+        nameKanap.textContent = kanap.name;
+
+        let descriptionKanap = document.createElement('p');
+        articleKanap.appendChild(descriptionKanap);
+        descriptionKanap.classList.add('productDescription');
+        descriptionKanap.textContent = kanap.description;
+
       
     }
   }

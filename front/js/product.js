@@ -78,12 +78,12 @@ function newKanap (id,name,img,price){
   }
   return kanap;
 }
-function newOrder(id,color,quantity,name,img,price){
+function newOrder(id,name,img,price){
 
   let order = {
     id:id,
-    color:color,
-    quantity:quantity,
+    color:getColor(),
+    quantity:getQuantity(),
     name:name,
     img:img,
     price:price,
@@ -133,16 +133,14 @@ function updateQuantity(uuid,quantity){
 
 
 
+
 const addBasketButton = document.getElementById('addToCart');
 addBasketButton.addEventListener('click', function(){
+
+ 
   try{
-    /*Récupération des informations de la commande*/
-    let quantity = getQuantity();
-    let color =  getColor();
-
-    /*Création de l'objet qui represente la commande*/
-
-    let order = newOrder(kanap.id,color,quantity,kanap.name,kanap.img,kanap.price);
+  
+    let order = newOrder(kanap.id,kanap.name,kanap.img,kanap.price);
     console.log('Id du produit '+order.id+' la quantité est '+order.quantity+' la couleur est '+order.color+' le nom est '+order.name+' l image est stocké '+order.img);  
     
     /*ajout au panier*/ 
