@@ -114,3 +114,48 @@ orderButton.addEventListener('click', function(){
     })
 })
 
+//Regex
+
+const email = document.getElementById('email').addEventListener('change',function(){
+  validationEmail(this);
+})
+
+function validationEmail(email){
+  let emailRegex = new RegExp('^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$','g');
+  let testEmail = emailRegex.test(email.value);
+  if (testEmail){
+    const emailError = document.getElementById('emailErrorMsg').textContent='';
+  }else{
+    const emailError = document.getElementById('emailErrorMsg').textContent='La saisie de votre email est invalide';
+  }
+  console.log(testEmail);
+}
+
+const fistName = document.getElementById('firstName').addEventListener('change',function(){
+  validationFirstName(this);
+})
+
+function validationFirstName(firstName){
+  let firstNameRegex = new RegExp("^[a-zA-Z ,.'-]+$",'g');
+  let firstNameTest = firstNameRegex.test(firstName.value);
+  if (firstNameTest){
+    const firstNameError = document.getElementById('firstNameErrorMsg').textContent='';
+  }else{
+    const firstNameError = document.getElementById('firstNameErrorMsg').textContent='Un prénom ne peut pas contenir de chiffre';
+  }
+}
+
+const lastName = document.getElementById('lastName').addEventListener('change',function(){
+  validationLasteName(this);
+})
+
+function validationLasteName(lastName){
+  let lastNameRegex = new RegExp("^[a-zA-Z ,.'-]+$",'g');
+  let lastNameTest = lastNameRegex.test(lastName);
+  if (lastNameTest){
+    const lastNameError = document.getElementById('lastNameErrorMsg').textContent='';
+  }else{
+    const lastNameError = document.getElementById('lastNameErrorMsg').textContent='Un nom ne peut pas contenir de chiffre';
+  }
+
+}

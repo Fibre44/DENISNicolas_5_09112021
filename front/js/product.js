@@ -1,13 +1,16 @@
-var str = location;
-console.log (location);
-var url = new URL(str);
-var search_params = new URLSearchParams(url.search); 
-if(search_params.has('id')) {
-  var product = search_params.get('id');
+function getIdProduit (){
+  var str = location;
+  console.log (location);
+  var url = new URL(str);
+  var search_params = new URLSearchParams(url.search); 
+  if(search_params.has('id')) {
+    var product = search_params.get('id');
+  }
+  return product
+
 }
 
-
-fetch("http://localhost:3000/api/products/"+product)
+fetch("http://localhost:3000/api/products/"+getIdProduit())
   .then (function (res){
     if (res.ok){
       return res.json();
@@ -15,44 +18,48 @@ fetch("http://localhost:3000/api/products/"+product)
   })
     .then (function (item) {
 
-      addKanapImg(item);
-      addKanapTitle(item);
-      addKanapDescription (item);
-      addKanapOptions (item);
-      addKanapPrice (item);
+      addKanap(item);
 
       kanap = newKanap(item._id,item.name,item.imageUrl,item.price);
 
     })
 
+    .catch (function (err) {
+      console.error('Erreur lors la mise à jour du DOM',err)
+    })
+
 
   .catch(function(err) {
 
-    console.error('Impossible de récupérer l\id du kanap')
+    console.error('Impossible de récupérer l\'id du kanap',err)
 });
 
+function addKanap (kanap){
 
-function addKanapImg(img){
   const kanapImg = document.querySelector('div .item__img');
-  kanapImg.innerHTML += '<img src='+img.imageUrl+' alt='+img.altTxt+'></img>';
-  console.log(img.imageUrl);
-}
+  const addKanapImg = document.createElement('img');
+  kanapImg.appendChild(addKanapImg);
+  addKanapImg.src = kanap.imageUrl;
+  addKanapImg.alt = kanap.altTxt;
 
-function addKanapTitle(title){
-  const kanapTitle = document.getElementById('title');
-  kanapTitle.innerHTML += title.name;
-}
+  const kanapName = document.getElementById('title');
+  kanapName.textContent = kanap.name;
 
-function addKanapDescription (description){
+  const kanapPrice = document.getElementById('price');
+  kanapPrice.textContent = kanap.price;
+
   const kanapDescription = document.getElementById('description');
-  kanapDescription.innerHTML += description.description;
-}
+  kanapDescription.textContent = kanap.description;
 
-function addKanapOptions(options){
-  const kanapOptions = document.getElementById('colors');
-  for (option of  options.colors){
-    kanapOptions.innerHTML += '<option value='+option+'>'+option+'</option>';
+  const kanapColors = document.getElementById('colors');
+  for (color of kanap.colors){
+    let option = document.createElement('option');
+    option.value = color;
+    option.textContent = color;
+
+    kanapColors.appendChild(option);
   }
+
 }
 
 function addKanapPrice (price){
