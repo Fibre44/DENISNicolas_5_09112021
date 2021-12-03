@@ -17,53 +17,81 @@ for( let i = 0; i < localStorage.length; i++){
 }
 
 function updateDomOrders(order){
-  try{
-    const addItem = document.getElementById("cart__items");
-    addItem.innerHTML += '<article class="cart__item" data-id='+order.id+'>'+
-                            '<div class="cart__item__img"><img src="'+order.img+'"alt=>'+                                                           
-                            '</div>'+
-                            '<div class="cart__item__content">'+
-                              '<div class="cart__item__content__titlePrice">'+
-                                '<h2>'+order.name+'</h2>'+
-                                '<p>'+order.price+'€</p>'+ 
-                                '<p>Couleur ='+order.color+'</p>'+/*n 'existe pas dans le fichier cart à verifier*/
-                                '</div>'+
-                              '<div class="cart__item__content__settings">'+
-                              '<div class="cart__item__content__settings__quantity">'+
-                                '<p>'+order.quantity+'</p>'+
-                                '<input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="42">'+
-                              '</div>'+
-                              '<div class="cart__item__content__settings__delete">'+
-                                '<p class="deleteItem">Supprimer</p>'+
-                              '</div>'+
-                            '</div>'+
-                          '</article>';
+  let kanap = document.createElement("article");
+  kanap.classList.add("cart__item");
+  document.getElementById("cart__items").appendChild(kanap);
 
-  }
-  catch{
-    console.error('Erreur mise à jour du dom');
-  }
+  let kanapDiv = document.createElement("div");
+  kanapDiv.classList.add("cart__item__img");
+  kanap.appendChild(kanapDiv);
+
+  let kanapImg = document.createElement("img");
+  kanapImg.src = order.img;
+  kanapDiv.appendChild(kanapImg);
+
+  let kanapItemContent = document.createElement("div");
+  kanapItemContent.classList.add("cart__item__content");
+  kanap.appendChild(kanapItemContent);
+
+  let kanapItemTitlePrice = document.createElement("div");
+  kanapItemTitlePrice.classList.add("cart__item__content__titlePrice");
+  kanapItemContent.appendChild(kanapItemTitlePrice);
+
+  let kanapName = document.createElement("h2");
+  kanapName.textContent = order.name;
+  kanapItemContent.appendChild(kanapName);
+
+  let kanapPrice = document.createElement("p");
+  kanapPrice.textContent = order.price+" €";
+  kanapItemContent.appendChild(kanapPrice);
+
+  let kanapSettingOption = document.createElement("div");
+  kanapSettingOption.classList.add("cart__item__content__settings");
+  kanapItemContent.appendChild(kanapSettingOption);
+
+  let kanapSettingQuantity = document.createElement("div");
+  kanapSettingQuantity.classList.add("cart__item__content__settings__quantity");
+  kanapSettingOption.appendChild(kanapSettingQuantity);
+
+  let kanapQuantity = document.createElement("p");
+  kanapQuantity.textContent = order.quantity;
+  kanapSettingQuantity.appendChild(kanapQuantity);
+
+  let updateQuantity = document.createElement("input");
+  updateQuantity.setAttribute("type","number");
+  updateQuantity.classList.add("itemQuantity");
+  updateQuantity.setAttribute("name","itemQuantity");
+  updateQuantity.setAttribute("min","1");
+  updateQuantity.setAttribute("max","100");
+  updateQuantity.setAttribute("value",order.quantity);
+
+  kanapSettingQuantity.appendChild(updateQuantity);
+
+  let kanapDelete = document.createElement("div");
+  kanapDelete.classList.add("cart__item__content__settings__delete");
+  kanapSettingQuantity.appendChild(kanapDelete);
+
+  let buttonDelete = document.createElement("p");
+  buttonDelete.classList.add("deleteItem");
+  buttonDelete.textContent = "Supprimer";
+  kanapDelete.appendChild(buttonDelete);
+
+
   
 }
-const articles = document.getElementsByClassName("itemQuantity");
-  console.log('Suppression'+articles.length+'détail'+articles);      
 
-async function getQuantityBasket(){
-  const quantity = document.getElementsByClassName("itemQuantity");
-  return quantity;
+//Gestion de la suppression d'un élément
+
+const deleteButton = document.querySelectorAll('.deleteItem');
+for (let i = 0; i < deleteButton.length;i++){
+  let buttonClick = deleteButton[i];
+  buttonClick.addEventListener('click',function(){
+    this.innerHTML = '<p> on est ici</p>';
+    console.log('Click sur suppression');
+  });
 
 }
-for (let i = 0; i<articles.length;i++) {
-  button = articles[i];
-  button.addEventListener("click",async function(){
-    let quantity = await getQuantityBasket();
-    if(quantity> 42){
-      console.log ("+1")
-    }else{
-      console.log('-1');
-    }
-  })
-}
+
 
 
 function updateDomArticlePrice(price,articles){

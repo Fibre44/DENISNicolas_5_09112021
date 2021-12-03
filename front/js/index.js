@@ -2,6 +2,7 @@ function getAllKanaps () {
     fetch ("http://localhost:3000/api/products")
     .then(function(res) {
         try{
+            console.log('La reponse est '+res)
             if (res.ok) {
                 return res.json();
                 }
