@@ -138,9 +138,6 @@ function updateQuantity(uuid,quantity){
 }
 
 
-
-
-
 const addBasketButton = document.getElementById('addToCart');
 addBasketButton.addEventListener('click', function(){
 

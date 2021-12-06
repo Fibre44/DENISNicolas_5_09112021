@@ -1,23 +1,28 @@
 const cart = document.getElementById("cart__items");
 
-let priceTotal =0;
+let priceTotal = 0;
+let quantityTotal = 0;
 for( let i = 0; i < localStorage.length; i++){
 
   let key = localStorage.key(i);
   let order = getLocalStorage(key);
-  let basket = {
-    orders : []
-  };
-  basket.orders.push(order,priceTotal);
-  priceTotal += order.price*order.quantity;
-  updateDomOrders(order);
-  updateDomArticlePrice(priceTotal,basket.orders.length);
+  quantityTotal += parseInt(order.quantity);
+  priceTotal += parseInt(order.price)*parseInt(order.quantity);
+  console.log('Key : '+key+' quantité '+order.quantity+' la variable contient '+quantityTotal+' articles. Le prix total est de '+priceTotal);
 
+  updateDomOrders(order);
+  updateDomArticlePrice(priceTotal,quantityTotal);
 
 }
 
+/**
+ * Mise à jour du DOM page panier
+ * @param {objet} order 
+ */
+
 function updateDomOrders(order){
   let kanap = document.createElement("article");
+  kanap.setAttribute("data-id",order.id+order.color);
   kanap.classList.add("cart__item");
   document.getElementById("cart__items").appendChild(kanap);
 
@@ -80,31 +85,41 @@ function updateDomOrders(order){
   
 }
 
+/**
+ * 
+ * @param {integer} price 
+ * @param {integer} quantity 
+ */
+
+function updateDomArticlePrice(price,quantity){
+  try{
+    const addPrice = document.getElementById("totalPrice");
+    addPrice.textContent =price;
+    const addQuantity = document.getElementById("totalQuantity");
+    addQuantity.textContent = quantity;
+  }
+  catch{
+    console.error('Erreur mise à jour totaux');
+  }
+}
+
+
 //Gestion de la suppression d'un élément
 
 const deleteButton = document.querySelectorAll('.deleteItem');
 for (let i = 0; i < deleteButton.length;i++){
   let buttonClick = deleteButton[i];
   buttonClick.addEventListener('click',function(){
-    this.innerHTML = '<p> on est ici</p>';
-    console.log('Click sur suppression');
+    let idKanapDelete = this.parentElement.parentElement.parentElement.parentElement.parentElement;
+    console.log('Le parent est '+idKanapDelete.getAttribute("data-id"));
+    alert('L article a été supprimé du panier');
+    localStorage.removeItem(idKanapDelete.getAttribute("data-id"));
+    location.reload();
+
   });
 
 }
 
-
-
-function updateDomArticlePrice(price,articles){
-  try{
-    const addPrice = document.getElementById("totalPrice");
-    addPrice.innerHTML =price;
-    const addQuantity = document.getElementById("totalQuantity");
-    addQuantity.innerHTML = articles;
-  }
-  catch{
-    console.error('Erreur mise à jour totaux');
-  }
-}
 
 const orderButton = document.getElementById("order");
 orderButton.addEventListener('click', function(){

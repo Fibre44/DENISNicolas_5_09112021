@@ -1,3 +1,9 @@
+/**
+ * La fonction va récupérer dans le local storage la commande
+ * @param {string} uuid 
+ * @returns 
+ */
+
 function getLocalStorage(uuid){
     try{
       let orderLinea = localStorage.getItem(uuid);
@@ -9,6 +15,13 @@ function getLocalStorage(uuid){
     }
   
 }
+
+/**
+ * La fonction créer dans le local storage une nouvelle commande
+ * @param {string} key 
+ * @param {object} items 
+ * @returns 
+ */
 
 function setLocalStorage(key,items){
     try{
