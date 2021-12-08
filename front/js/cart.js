@@ -120,20 +120,44 @@ for (let i = 0; i < deleteButton.length;i++){
 
 }
 
+function getBasket(){
+  let products = [];
+
+  for (let i =0; i <localStorage.length; i++){
+    let key = localStorage.key(i);
+    let order = getLocalStorage(key);
+    products.push(order.id);
+
+  }
+  return products;
+
+}
+
+function getContact(){
+  let contact =  {
+    firstName: document.getElementById("firstName").value,
+    lastName: document.getElementById("lastName").value,
+    address: document.getElementById("address").value,
+    city: document.getElementById("city").value,
+    email: document.getElementById("email").value
+  }
+  return contact;
+
+}
 
 const orderButton = document.getElementById("order");
-orderButton.addEventListener('click', function(){
-  
-  let contact =  {
-     firstName: document.getElementById("firstName").value,
-     lastName: document.getElementById("lastName").value,
-     address: document.getElementById("address").value,
-     city: document.getElementById("city").value,
-     email: document.getElementById("email").value
-   }
-   contactJson = JSON.stringify(contact);
-   console.log('contact'+contact);
+orderButton.addEventListener('click', function(event){
 
+  event.preventDefault();
+  order = {
+    contact : getContact(),
+    products : getBasket(), 
+  }
+
+   console.log('contact'+order.contact.email);
+   console.log ('QUantité :'+order.products);
+  
+   
    fetch ('http://localhost:3000/api/products/order',{
      method: "POST",
      headers:{
@@ -141,7 +165,7 @@ orderButton.addEventListener('click', function(){
        'Content-Type': 'application/json'
      ,
     },
-      body: JSON.stringify(contact)
+      body: JSON.stringify(order)
 
     })
     .then (function (res){
@@ -154,7 +178,9 @@ orderButton.addEventListener('click', function(){
     })
     .catch(function(err){
       console.error('Erreur lors du post');
-    })
+    });
+    
+    
 })
 
 //Regex
@@ -194,7 +220,7 @@ const lastName = document.getElementById('lastName').addEventListener('change',f
 
 function validationLasteName(lastName){
   let lastNameRegex = new RegExp("^[a-zA-Z ,.'-]+$",'g');
-  let lastNameTest = lastNameRegex.test(lastName);
+  let lastNameTest = lastNameRegex.test(lastName.value);
   if (lastNameTest){
     const lastNameError = document.getElementById('lastNameErrorMsg').textContent='';
   }else{
