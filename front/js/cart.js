@@ -120,6 +120,25 @@ for (let i = 0; i < deleteButton.length;i++){
 
 }
 
+//Gestion mise à jour quantité
+
+const updateQuantity = document.querySelectorAll('.itemQuantity');
+
+for (let i = 0; i < updateQuantity.length; i++){
+  let updateClick = updateQuantity[i];
+  updateClick.addEventListener('click',function(){
+    let idKanapUpdateQuantity = this.parentElement.parentElement.parentElement.parentElement;
+    let kanapUpdateQuantityOrder = getLocalStorage(idKanapUpdateQuantity.getAttribute("data-id"));
+    kanapUpdateQuantityOrder.quantity = updateClick.value;
+    setLocalStorage(idKanapUpdateQuantity.getAttribute("data-id"),kanapUpdateQuantityOrder);
+    location.reload();
+
+
+  })
+}
+
+//Reflexion faire une fonction qui trouvera le data id
+
 function getBasket(){
   let products = [];
 
