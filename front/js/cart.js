@@ -1,17 +1,16 @@
 const cart = document.getElementById("cart__items");
 
-let priceTotal = 0;
-let quantityTotal = 0;
+//lecture du local storage
 for( let i = 0; i < localStorage.length; i++){
 
   let key = localStorage.key(i);
   let order = getLocalStorage(key);
-  quantityTotal += parseInt(order.quantity);
-  priceTotal += parseInt(order.price)*parseInt(order.quantity);
-  console.log('Key : '+key+' quantité '+order.quantity+' la variable contient '+quantityTotal+' articles. Le prix total est de '+priceTotal);
 
+  //création des différents articles du panier
   updateDomOrders(order);
-  updateDomArticlePrice(priceTotal,quantityTotal);
+
+  //mise à jour des totaux
+  updateDomArticlePrice();
 
 }
 
@@ -81,7 +80,6 @@ function updateDomOrders(order){
   buttonDelete.textContent = "Supprimer";
   kanapDelete.appendChild(buttonDelete);
 
-
   
 }
 
@@ -91,34 +89,59 @@ function updateDomOrders(order){
  * @param {integer} quantity 
  */
 
-function updateDomArticlePrice(price,quantity){
-  try{
-    const addPrice = document.getElementById("totalPrice");
-    addPrice.textContent =price;
-    const addQuantity = document.getElementById("totalQuantity");
-    addQuantity.textContent = quantity;
+function updateDomArticlePrice(){
+  let priceTotal = 0;
+  let quantityTotal = 0;
+
+  const priceDom = document.getElementById("totalPrice");
+  const quantityDom = document.getElementById("totalQuantity");
+  //lecture localstorage
+  for( let i = 0; i < localStorage.length; i++){
+
+    let key = localStorage.key(i);
+    let order = getLocalStorage(key);
+
+    //parseInt pour forcer la conversion sinon il analyse comme du string
+    priceTotal += parseInt(order.price)*parseInt(order.quantity);
+    quantityTotal += parseInt(order.quantity);
+
+    priceDom.textContent = priceTotal;
+    quantityDom.textContent = quantityTotal;
+    
   }
-  catch{
-    console.error('Erreur mise à jour totaux');
-  }
+
 }
 
-
 //Gestion de la suppression d'un élément
+
+//this représente l'élement en cours
 
 const deleteButton = document.querySelectorAll('.deleteItem');
 for (let i = 0; i < deleteButton.length;i++){
   let buttonClick = deleteButton[i];
   buttonClick.addEventListener('click',function(){
-    let idKanapDelete = this.parentElement.parentElement.parentElement.parentElement.parentElement;
-    console.log('Le parent est '+idKanapDelete.getAttribute("data-id"));
-    alert('L article a été supprimé du panier');
-    localStorage.removeItem(idKanapDelete.getAttribute("data-id"));
-    location.reload();
+
+    //mise à jour du DOM
+    let idKanapDelete = searchDataId(this);
+    let section = document.getElementById('cart__items');
+    let articles = document.getElementsByTagName("article");
+    for (article of articles){
+      if (idKanapDelete == article.getAttribute("data-id")){
+        console.log('id en cours '+article.getAttribute("data-id"));
+        section.removeChild(article);
+      }
+    }
+    //mise à jour localstorage
+    console.log('Le parent est '+idKanapDelete);
+    localStorage.removeItem(idKanapDelete);
+
+    //mise à jour des totaux
+    updateDomArticlePrice()
 
   });
 
 }
+
 
 //Gestion mise à jour quantité
 
@@ -126,18 +149,38 @@ const updateQuantity = document.querySelectorAll('.itemQuantity');
 
 for (let i = 0; i < updateQuantity.length; i++){
   let updateClick = updateQuantity[i];
+  //updateClick contient la valeur de le la balise input
+
   updateClick.addEventListener('click',function(){
-    let idKanapUpdateQuantity = this.parentElement.parentElement.parentElement.parentElement;
-    let kanapUpdateQuantityOrder = getLocalStorage(idKanapUpdateQuantity.getAttribute("data-id"));
+    
+    //mise à jour du DOM
+    let quantityDom = this.previousElementSibling;
+    quantityDom.textContent = updateClick.value;
+
+    //mise à jour localStorage
+    let idKanapUpdateQuantity = searchDataId(this);
+    let kanapUpdateQuantityOrder = getLocalStorage(idKanapUpdateQuantity);
     kanapUpdateQuantityOrder.quantity = updateClick.value;
-    setLocalStorage(idKanapUpdateQuantity.getAttribute("data-id"),kanapUpdateQuantityOrder);
-    location.reload();
+    setLocalStorage(idKanapUpdateQuantity,kanapUpdateQuantityOrder);
 
-
+    //mise à jour des totaux
+    updateDomArticlePrice()
   })
 }
 
-//Reflexion faire une fonction qui trouvera le data id
+/**
+ * La fonction va chercher de façon récursive l'attribut data-id de la balise article
+ * @param {htmlcollection} localisation 
+ * @returns 
+ */
+
+function searchDataId(localisation){
+  if (localisation.getAttribute("data-id") != undefined ) {
+    return localisation.getAttribute("data-id");
+  }else{
+    return searchDataId(localisation.parentElement);
+  }
+}
 
 function getBasket(){
   let products = [];
@@ -151,6 +194,11 @@ function getBasket(){
   return products;
 
 }
+
+/**
+ * 
+ * @returns un object contact avec l'ensemble des informations du formulaire
+ */
 
 function getContact(){
   let contact =  {
@@ -174,7 +222,7 @@ orderButton.addEventListener('click', function(event){
   }
 
    console.log('contact'+order.contact.email);
-   console.log ('QUantité :'+order.products);
+   console.log ('Quantité :'+order.products);
   
    
    fetch ('http://localhost:3000/api/products/order',{
@@ -193,7 +241,10 @@ orderButton.addEventListener('click', function(event){
       }    
     })
     .then(function(res){
-      console.log('Retour du post'+res);
+      console.log('Retour du post'+res.orderId);
+      localStorage.setItem('orderId',res.orderId);
+      document.location.href = "confirmation.html";
+
     })
     .catch(function(err){
       console.error('Erreur lors du post');
