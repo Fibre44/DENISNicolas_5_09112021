@@ -255,19 +255,39 @@ orderButton.addEventListener('click', function(event){
 
 //Regex
 
+function errorOrder(){
+
+  const errorEmail = document.getElementById("emailErrorMsg");
+  const buttonOrder = document.getElementById("order");
+  console.log(errorEmail);
+  if (errorEmail != ''){
+    buttonOrder.setAttribute("value","Commander !");    
+  }else{
+    buttonOrder.setAttribute("value","Erreur sur le formulaire");
+
+  }
+
+  
+}
+
+
+
 const email = document.getElementById('email').addEventListener('change',function(){
   validationEmail(this);
 })
+
 
 function validationEmail(email){
   let emailRegex = new RegExp('^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$','g');
   let testEmail = emailRegex.test(email.value);
   if (testEmail){
     const emailError = document.getElementById('emailErrorMsg').textContent='';
+
   }else{
     const emailError = document.getElementById('emailErrorMsg').textContent='La saisie de votre email est invalide';
   }
-  console.log(testEmail);
+  errorOrder();
+
 }
 
 const fistName = document.getElementById('firstName').addEventListener('change',function(){
@@ -295,6 +315,7 @@ function validationLasteName(lastName){
     const lastNameError = document.getElementById('lastNameErrorMsg').textContent='';
   }else{
     const lastNameError = document.getElementById('lastNameErrorMsg').textContent='Un nom ne peut pas contenir de chiffre';
+
   }
 
 }

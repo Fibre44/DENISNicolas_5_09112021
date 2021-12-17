@@ -137,37 +137,61 @@ function updateQuantity(uuid,quantity){
   }
 }
 
+function controleQuantity(quantity){
+
+  if (quantity == 0 || quantity >100 ){
+    return true
+  }else{
+    return false
+  }
+}
+
+function controleOption(option){
+  
+  if (option == ""){
+    return true
+  }else{
+    return false
+  }
+}
 
 const addBasketButton = document.getElementById('addToCart');
 addBasketButton.addEventListener('click', function(){
 
- 
-  try{
   
     let order = newOrder(kanap.id,kanap.name,kanap.img,kanap.price);
     console.log('Id du produit '+order.id+' la quantité est '+order.quantity+' la couleur est '+order.color+' le nom est '+order.name+' l image est stocké '+order.img);  
     
-    /*ajout au panier*/ 
-    /*Recherche si la commande existe déjà */
-    let search = searchOrder(order.id+order.color);
-    if (search == true){
-      console.log('Mise à jour de la commande');
-      let newQuantity = updateQuantity(order.id+order.color,order.quantity);
-      order.quantity = newQuantity;
-      setLocalStorage(order.id+order.color,order);
-
+    if (controleQuantity(order.quantity) == true || controleOption(order.color) == true){
+      addBasketButton.textContent = "Erreur sur la commande vérifier la quantité et choisir une couleur";
+      console.log("Pas d' enregistrement dans le localStorage");
     }else{
-      console.log('Nouvel commmande');
-      setLocalStorage(order.id+order.color,order);
+      addBasketButton.textContent = "Ajouter au panier";
+
+      /*ajout au panier*/ 
+      /*Recherche si la commande existe déjà */
+      let search = searchOrder(order.id+order.color);
+      if (search == true){
+        console.log("Mise à jour de la commande");
+        let newQuantity = updateQuantity(order.id+order.color,order.quantity);
+        order.quantity = newQuantity;
+        setLocalStorage(order.id+order.color,order);
+
+      }else{
+        console.log("Nouvel commmande");
+        setLocalStorage(order.id+order.color,order);
+      }
+
+      const succesOrder = document.createElement("p");
+      succesOrder.textContent = "La commande a été ajouté au panier";
+      const succes = document.getElementsByClassName("item__content__addButton");
+
+      succes[0].appendChild(succesOrder);
     }
-  
-  }  
 
-  catch{
-    console.error('Erreur lors du passage de la commande')
-  }
-
+    
 });
+
 
 
 
