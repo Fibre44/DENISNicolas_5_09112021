@@ -34,3 +34,26 @@ function setLocalStorage(key,items){
     }
   
 }
+
+function getOneProduct (id) {
+
+  return new Promise (function (resolve, reject){
+
+      fetch("http://localhost:3000/api/products/"+id)
+      .then (function (res){
+        if (res.ok){
+          resolve(res.json());
+        }
+        reject(res)
+    
+      })
+    
+      .catch(function(err) {
+    
+        console.error('Impossible de récupérer l\'id du kanap',err)
+    
+    });
+
+  })
+
+}

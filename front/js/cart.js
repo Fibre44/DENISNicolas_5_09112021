@@ -6,11 +6,83 @@ for( let i = 0; i < localStorage.length; i++){
   let key = localStorage.key(i);
   let order = getLocalStorage(key);
 
-  //création des différents articles du panier
-  updateDomOrders(order);
+  getOneProduct(order.id)
+  .then(function (response) {
 
-  //mise à jour des totaux
-  updateDomArticlePrice();
+    return response.price
+    })
+
+    .then(function (price){
+
+      updateDomOrders(order,price);
+
+      updateDomArticlePrice();
+
+    })
+
+    .then(function (){
+
+    //Gestion de la suppression d'un élément
+
+    //this représente l'élement en cours
+
+    const deleteButton = document.querySelectorAll('.deleteItem');
+
+    for (let i = 0; i < deleteButton.length;i++){
+      let buttonClick = deleteButton[i];
+      buttonClick.addEventListener('click',function(){
+
+        //mise à jour du DOM
+        let idKanapDelete = searchDataId(this);
+        let section = document.getElementById('cart__items');
+        let articles = document.getElementsByTagName('article');
+        for (article of articles){
+          if (idKanapDelete == article.getAttribute('data-id')){
+            console.log('id en cours '+article.getAttribute('data-id'));
+            section.removeChild(article);
+          }
+        }
+        //mise à jour localstorage
+        console.log('Le parent est '+idKanapDelete);
+        localStorage.removeItem(idKanapDelete);
+
+        //mise à jour des totaux
+        updateDomArticlePrice()
+
+      });
+
+    }
+    //Gestion mise à jour quantité
+
+    const updateQuantity = document.querySelectorAll('.itemQuantity');
+
+    for (let i = 0; i < updateQuantity.length; i++){
+      let updateClick = updateQuantity[i];
+      //updateClick contient la valeur de le la balise input
+
+      updateClick.addEventListener('click',function(){
+        
+        //mise à jour du DOM
+        let quantityDom = this.previousElementSibling;
+        quantityDom.textContent = "Qté : "+updateClick.value;//balise <p> qui contient le prix en euros
+
+        //mise à jour localStorage
+        let idKanapUpdateQuantity = searchDataId(this);
+        let kanapUpdateQuantityOrder = getLocalStorage(idKanapUpdateQuantity);
+        kanapUpdateQuantityOrder.quantity = updateClick.value;
+        setLocalStorage(idKanapUpdateQuantity,kanapUpdateQuantityOrder);
+
+        //mise à jour des totaux
+        updateDomArticlePrice()
+ 
+      })
+    }
+
+    })
+
+    .catch(function (req) {
+    console.error("Le serveur retourne une erreur",req)
+    });
 
 }
 
@@ -19,7 +91,7 @@ for( let i = 0; i < localStorage.length; i++){
  * @param {objet} order 
  */
 
-function updateDomOrders(order){
+function updateDomOrders(order,price){
   let kanap = document.createElement("article");
   kanap.setAttribute("data-id",order.id+order.color);
   kanap.classList.add("cart__item");
@@ -43,11 +115,11 @@ function updateDomOrders(order){
 
   let kanapName = document.createElement("h2");
   kanapName.textContent = order.name;
-  kanapItemContent.appendChild(kanapName);
+  kanapItemTitlePrice.appendChild(kanapName);
 
   let kanapPrice = document.createElement("p");
-  kanapPrice.textContent = order.price+" €";
-  kanapItemContent.appendChild(kanapPrice);
+  kanapPrice.textContent = price+" €";
+  kanapItemTitlePrice.appendChild(kanapPrice);
 
   let kanapSettingOption = document.createElement("div");
   kanapSettingOption.classList.add("cart__item__content__settings");
@@ -58,7 +130,7 @@ function updateDomOrders(order){
   kanapSettingOption.appendChild(kanapSettingQuantity);
 
   let kanapQuantity = document.createElement("p");
-  kanapQuantity.textContent = order.quantity;
+  kanapQuantity.textContent = "Qté : "+order.quantity;
   kanapSettingQuantity.appendChild(kanapQuantity);
 
   let updateQuantity = document.createElement("input");
@@ -73,7 +145,7 @@ function updateDomOrders(order){
 
   let kanapDelete = document.createElement("div");
   kanapDelete.classList.add("cart__item__content__settings__delete");
-  kanapSettingQuantity.appendChild(kanapDelete);
+  kanapSettingOption.appendChild(kanapDelete);
 
   let buttonDelete = document.createElement("p");
   buttonDelete.classList.add("deleteItem");
@@ -90,88 +162,61 @@ function updateDomOrders(order){
  */
 
 function updateDomArticlePrice(){
+
+  console.log("Le local storage contient : "+localStorage.length);
+
+  if (localStorage.length == 0){
+  
+    priceDom.textContent = "0";
+    quantityDom.textContent = "0";
+
+  }else{
+
+    getTotal()
+    
+  }
+  
+}
+
+/**
+ * La fonction calcul la quantité total et le prix total en relisant le DOM puis va écrire dans le DOM les totaux
+ * 
+ */
+
+function getTotal(){
+
   let priceTotal = 0;
   let quantityTotal = 0;
 
   const priceDom = document.getElementById("totalPrice");
   const quantityDom = document.getElementById("totalQuantity");
-  //lecture localstorage
-  for( let i = 0; i < localStorage.length; i++){
 
-    let key = localStorage.key(i);
-    let order = getLocalStorage(key);
+  let priceArray = document.querySelectorAll(".cart__item__content__titlePrice p");//attention il faudra supprimer le €
+  let quantityArray = document.querySelectorAll(".cart__item__content__settings__quantity input");//contient les quantités
+  let totalarticles = document.getElementsByTagName("article");//nombre d'articles
 
-    //parseInt pour forcer la conversion sinon il analyse comme du string
-    priceTotal += parseInt(order.price)*parseInt(order.quantity);
-    quantityTotal += parseInt(order.quantity);
+  console.log("price "+priceArray.length+" quantité "+quantityArray.length);
+
+  for (let i = 0; i <totalarticles.length; i++ ){
+
+    let price = priceArray[i]
+    let quantity = quantityArray[i]
+
+    priceTotal += parseInt(price.textContent.replace(' €',''))*parseInt(quantity.value);
+    quantityTotal += parseInt(quantity.value);
+
+    console.log("Le prix total est de "+priceTotal+' la quantité total est de '+quantityTotal);
 
     priceDom.textContent = priceTotal;
     quantityDom.textContent = quantityTotal;
-    
+
   }
-
-}
-
-//Gestion de la suppression d'un élément
-
-//this représente l'élement en cours
-
-const deleteButton = document.querySelectorAll('.deleteItem');
-for (let i = 0; i < deleteButton.length;i++){
-  let buttonClick = deleteButton[i];
-  buttonClick.addEventListener('click',function(){
-
-    //mise à jour du DOM
-    let idKanapDelete = searchDataId(this);
-    let section = document.getElementById('cart__items');
-    let articles = document.getElementsByTagName("article");
-    for (article of articles){
-      if (idKanapDelete == article.getAttribute("data-id")){
-        console.log('id en cours '+article.getAttribute("data-id"));
-        section.removeChild(article);
-      }
-    }
-    //mise à jour localstorage
-    console.log('Le parent est '+idKanapDelete);
-    localStorage.removeItem(idKanapDelete);
-
-    //mise à jour des totaux
-    updateDomArticlePrice()
-
-  });
-
-}
-
-
-//Gestion mise à jour quantité
-
-const updateQuantity = document.querySelectorAll('.itemQuantity');
-
-for (let i = 0; i < updateQuantity.length; i++){
-  let updateClick = updateQuantity[i];
-  //updateClick contient la valeur de le la balise input
-
-  updateClick.addEventListener('click',function(){
-    
-    //mise à jour du DOM
-    let quantityDom = this.previousElementSibling;
-    quantityDom.textContent = updateClick.value;
-
-    //mise à jour localStorage
-    let idKanapUpdateQuantity = searchDataId(this);
-    let kanapUpdateQuantityOrder = getLocalStorage(idKanapUpdateQuantity);
-    kanapUpdateQuantityOrder.quantity = updateClick.value;
-    setLocalStorage(idKanapUpdateQuantity,kanapUpdateQuantityOrder);
-
-    //mise à jour des totaux
-    updateDomArticlePrice()
-  })
 }
 
 /**
  * La fonction va chercher de façon récursive l'attribut data-id de la balise article
  * @param {htmlcollection} localisation 
- * @returns 
+ * @returns le data-id de l'article qu'on souhaite supprimer/modifier
  */
 
 function searchDataId(localisation){
@@ -224,7 +269,7 @@ orderButton.addEventListener('click', function(event){
    console.log('contact'+order.contact.email);
    console.log ('Quantité :'+order.products);
   
-   
+   //requete Post
    fetch ('http://localhost:3000/api/products/order',{
      method: "POST",
      headers:{
@@ -266,11 +311,8 @@ function errorOrder(){
     buttonOrder.setAttribute("value","Erreur sur le formulaire");
 
   }
-
   
 }
-
-
 
 const email = document.getElementById('email').addEventListener('change',function(){
   validationEmail(this);

@@ -85,7 +85,15 @@ function newKanap (id,name,img,price){
   }
   return kanap;
 }
-function newOrder(id,name,img,price){
+
+/**
+ * 
+ * @param {*} id 
+ * @param {*} name 
+ * @param {*} img 
+ * @returns un objet qui représente une commande qui sera ensuite enregistré dans le localStorage (MAJ OpenClassRooms on ne stocke pas le prix)
+ */
+function newOrder(id,name,img){
 
   let order = {
     id:id,
@@ -93,7 +101,6 @@ function newOrder(id,name,img,price){
     quantity:getQuantity(),
     name:name,
     img:img,
-    price:price,
   }  
   return order;
 }
@@ -159,7 +166,7 @@ const addBasketButton = document.getElementById('addToCart');
 addBasketButton.addEventListener('click', function(){
 
   
-    let order = newOrder(kanap.id,kanap.name,kanap.img,kanap.price);
+    let order = newOrder(kanap.id,kanap.name,kanap.img);
     console.log('Id du produit '+order.id+' la quantité est '+order.quantity+' la couleur est '+order.color+' le nom est '+order.name+' l image est stocké '+order.img);  
     
     if (controleQuantity(order.quantity) == true || controleOption(order.color) == true){
