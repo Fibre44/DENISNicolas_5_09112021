@@ -194,9 +194,7 @@ function getTotal(){
   let priceArray = document.querySelectorAll(".cart__item__content__titlePrice p");//attention il faudra supprimer le €
   let quantityArray = document.querySelectorAll(".cart__item__content__settings__quantity input");//contient les quantités
   let totalarticles = document.getElementsByTagName("article");//nombre d'articles
-
-  console.log("price "+priceArray.length+" quantité "+quantityArray.length);
-
+  
   for (let i = 0; i <totalarticles.length; i++ ){
 
     let price = priceArray[i]
@@ -207,10 +205,10 @@ function getTotal(){
 
     console.log("Le prix total est de "+priceTotal+' la quantité total est de '+quantityTotal);
 
-    priceDom.textContent = priceTotal;
-    quantityDom.textContent = quantityTotal;
-
   }
+
+  priceDom.textContent = priceTotal;
+  quantityDom.textContent = quantityTotal;
 }
 
 /**
@@ -265,9 +263,6 @@ orderButton.addEventListener('click', function(event){
     contact : getContact(),
     products : getBasket(), 
   }
-
-   console.log('contact'+order.contact.email);
-   console.log ('Quantité :'+order.products);
   
    //requete Post
    fetch ('http://localhost:3000/api/products/order',{
@@ -300,19 +295,6 @@ orderButton.addEventListener('click', function(event){
 
 //Regex
 
-function errorOrder(){
-
-  const errorEmail = document.getElementById("emailErrorMsg");
-  const buttonOrder = document.getElementById("order");
-  console.log(errorEmail);
-  if (errorEmail != ''){
-    buttonOrder.setAttribute("value","Commander !");    
-  }else{
-    buttonOrder.setAttribute("value","Erreur sur le formulaire");
-
-  }
-  
-}
 
 const email = document.getElementById('email').addEventListener('change',function(){
   validationEmail(this);
@@ -324,13 +306,18 @@ function validationEmail(email){
   let testEmail = emailRegex.test(email.value);
   if (testEmail){
     const emailError = document.getElementById('emailErrorMsg').textContent='';
+  
 
   }else{
     const emailError = document.getElementById('emailErrorMsg').textContent='La saisie de votre email est invalide';
+
   }
-  errorOrder();
+
+  errorForm()
 
 }
+
+//gestion du champ prénom
 
 const fistName = document.getElementById('firstName').addEventListener('change',function(){
   validationFirstName(this);
@@ -341,10 +328,17 @@ function validationFirstName(firstName){
   let firstNameTest = firstNameRegex.test(firstName.value);
   if (firstNameTest){
     const firstNameError = document.getElementById('firstNameErrorMsg').textContent='';
+ 
+
   }else{
     const firstNameError = document.getElementById('firstNameErrorMsg').textContent='Un prénom ne peut pas contenir de chiffre';
+
   }
+
+  errorForm()
 }
+
+//gestion du nom
 
 const lastName = document.getElementById('lastName').addEventListener('change',function(){
   validationLasteName(this);
@@ -355,9 +349,39 @@ function validationLasteName(lastName){
   let lastNameTest = lastNameRegex.test(lastName.value);
   if (lastNameTest){
     const lastNameError = document.getElementById('lastNameErrorMsg').textContent='';
+
   }else{
     const lastNameError = document.getElementById('lastNameErrorMsg').textContent='Un nom ne peut pas contenir de chiffre';
 
   }
-
+  errorForm()
 }
+
+/**
+ * 
+ * Si un regex donne une erreur alors la fonction bloque le bouton du formulaire
+ */
+
+function errorForm (){
+  button = document.getElementById('order');
+
+  let emailTest = document.getElementById('emailErrorMsg').textContent;
+  let fistNameTest = document.getElementById('firstNameErrorMsg').textContent;
+  let lastNameTest = document.getElementById('lastNameErrorMsg').textContent;
+
+
+  console.log('email contien'+emailTest.length+' prénom contient'+fistNameTest.length);
+
+  if (emailTest.length > 0 || fistNameTest.length > 0 || lastNameTest.length > 0){
+
+    button.disabled = true
+
+  
+   }else if (emailTest.length == 0 && fistNameTest.length == 0 && lastNameTest.length == 0) {
+    button.disabled = false
+   }
+   
+}
+
+
+
