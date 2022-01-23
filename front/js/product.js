@@ -1,28 +1,29 @@
-function getIdProduit (){
-  var str = location;
-  console.log (location);
-  var url = new URL(str);
-  var search_params = new URLSearchParams(url.search); 
-  if(search_params.has('id')) {
-    var product = search_params.get('id');
-  }
-  return product
-
-}
-
-fetch("http://localhost:3000/api/products/"+getIdProduit())
+fetch("http://localhost:3000/api/products/"+getParamURl('id'))
   .then (function (res){
     if (res.ok){
       return res.json();
     }
   })
-    .then (function (item) {
+    .then ((item) => {
 
       addKanap(item);
 
       kanap = newKanap(item._id,item.name,item.imageUrl,item.price);
 
     })
+
+      .then(() => {
+
+        buttonControle();
+
+        addListener();
+
+      })
+
+      .catch(function (err){
+
+        console.error('Erreur lors de la mise en place des listenners ou du controle',err)
+      })
 
     .catch (function (err) {
       console.error('Erreur lors la mise à jour du DOM',err)
@@ -105,32 +106,51 @@ function newOrder(id,name,img){
   return order;
 }
 
+/**
+ * 
+ * @returns Retourne la quantité saisie par l'utilisateur
+ */
+
 function getQuantity(){
   const getQuantity = document.getElementById('quantity').value;
   return getQuantity;
 }
+
+/**
+ * 
+ * @returns Retourne la couleur saisie par l'utilisateur
+ */
 
 function getColor(){
   const getColor = document.getElementById('colors').value;
   return getColor;
 }
 
+/**
+ * 
+ * @param {string} uuid Indiquer l'UUID qu'on souhaite verifier
+ * @returns Si l'uuid existe dans le local storage alors vrai sinon faux
+ */
+
 function searchOrder(uuid){
-  try{
     let search = localStorage.getItem(uuid);
     if (search != undefined){
       return true
     }else{
       return false
     }
-  }
-  catch{
-    console.error('Erreur lors de la recherche de la commande');
-  }
+  
 }
 
+/**
+ * 
+ * @param {string} indiquer l'UUID de la commmande à mettre à jour
+ * @param {integer} indiquer la nouvelle quantité à ajouter
+ * @returns Retourne la nouvelle quantité ancienne quantité + la nouvelle quantité
+ */
+
 function updateQuantity(uuid,quantity){
-  try{
+
     let order = getLocalStorage(uuid);
     let oldQuantity = order.quantity;
     console.log ('Avant mise à jour la commande pour l id/color '+order.id+order.color+' contient '+order.quantity);
@@ -138,12 +158,12 @@ function updateQuantity(uuid,quantity){
     console.log('Ajout de '+quantity+' la fonction retourne'+newQuantity);
     return newQuantity;
 
-  }
-  catch{
-    console.error('Erreur lors de la mise à jour de la commande');
-  }
 }
-
+/**
+ * 
+ * @param {int} quantity 
+ * @returns Retourne Vrai si la quantité est à 0 ou si la quantité est supérieur à 100
+ */
 function controleQuantity(quantity){
 
   if (quantity == 0 || quantity >100 ){
@@ -152,7 +172,11 @@ function controleQuantity(quantity){
     return false
   }
 }
-
+/**
+ * 
+ * @param {string} option 
+ * @returns retourne vrai si l'utilisation n'a pas choisi de couleur
+ */
 function controleOption(option){
   
   if (option == ""){
@@ -169,7 +193,7 @@ addBasketButton.addEventListener('click', function(){
     let order = newOrder(kanap.id,kanap.name,kanap.img);
     console.log('Id du produit '+order.id+' la quantité est '+order.quantity+' la couleur est '+order.color+' le nom est '+order.name+' l image est stocké '+order.img);  
     
-    if (controleQuantity(order.quantity) == true || controleOption(order.color) == true){
+    if (controleQuantity(order.quantity) == true && controleOption(order.color) == true){
       addBasketButton.textContent = "Erreur sur la commande vérifier la quantité et choisir une couleur";
       console.log("Pas d' enregistrement dans le localStorage");
     }else{
@@ -198,6 +222,36 @@ addBasketButton.addEventListener('click', function(){
 
     
 });
+
+function buttonControle(){
+
+  const option = getColor();
+  const quantity = getQuantity();
+  const button = document.getElementById("addToCart")
+
+  console.log("option contient "+controleOption(option)+" value contient "+controleQuantity(quantity)); 
+
+  if (controleQuantity(quantity) == true || controleOption(option) == true){
+    button.disabled = true;
+    console.log("test vrai");
+  }else {
+    console.log("test faux");
+    button.disabled = false;
+  }
+ 
+}
+
+function addListener(){
+
+  const quantity = document.getElementById("quantity").addEventListener("click",()=>{
+    buttonControle();
+  })
+
+  const option = document.getElementById("colors").addEventListener("change",()=>{
+    buttonControle();
+  })
+}
+
 
 
 

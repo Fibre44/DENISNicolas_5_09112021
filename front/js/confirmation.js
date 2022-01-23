@@ -1,3 +1,3 @@
-const orderId = localStorage.getItem("orderId");
+let orderId = getParamURl("idOrder");
+
 const orderDom = document.getElementById("orderId").textContent=orderId;
-localStorage.removeItem("orderId");

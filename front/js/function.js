@@ -1,7 +1,7 @@
 /**
  * La fonction va récupérer dans le local storage la commande
- * @param {string} uuid 
- * @returns 
+ * @param {string} key indiquer la concaténation de order.id + order.color 
+ * @returns retourne un objet Javascript qui représente la commande
  */
 
 function getLocalStorage(uuid){
@@ -18,8 +18,8 @@ function getLocalStorage(uuid){
 
 /**
  * La fonction créer dans le local storage une nouvelle commande
- * @param {string} key 
- * @param {object} items 
+ * @param {string} key indiquer la concaténation de order.id + order.color
+ * @param {object} stocker un objet qui réprésente la commande
  * @returns 
  */
 
@@ -34,6 +34,12 @@ function setLocalStorage(key,items){
     }
   
 }
+
+/**
+ * 
+ * @param {string} id indiquer l'id du produit 
+ * @returns retourne une Promise qui contient un objet Javascript du produit
+ */
 
 function getOneProduct (id) {
 
@@ -55,5 +61,24 @@ function getOneProduct (id) {
     });
 
   })
+
+}
+
+/**
+ * 
+ * @param {string} searchParamUrl 
+ * @returns retourne la valeur du paramètre dans l'URL
+ * Indiquer la valeur qu'on souhaite rechercher dans l'URL pour obtenir le résultat
+ */
+
+function getParamURl (searchParamUrl){
+  var str = location;
+  console.log (location);
+  var url = new URL(str);
+  var search_params = new URLSearchParams(url.search); 
+  if(search_params.has(searchParamUrl)) {
+    var param = search_params.get((searchParamUrl));
+  }
+  return param
 
 }

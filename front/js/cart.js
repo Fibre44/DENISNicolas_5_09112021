@@ -4,11 +4,12 @@ const cart = document.getElementById("cart__items");
 for( let i = 0; i < localStorage.length; i++){
 
   let key = localStorage.key(i);
-  let order = getLocalStorage(key);
+  let order = getLocalStorage(key);//order contient les informations du produit sauf le prix
 
   getOneProduct(order.id)
   .then(function (response) {
 
+    //Consigne OpenClassRooms on ne stocke pas le prix dans le local storage solution => on réalise un appel API pour obtenir le produit afin de récupérer son prix
     return response.price
     })
 
@@ -281,9 +282,7 @@ orderButton.addEventListener('click', function(event){
       }    
     })
     .then(function(res){
-      console.log('Retour du post'+res.orderId);
-      localStorage.setItem('orderId',res.orderId);
-      document.location.href = "confirmation.html";
+      document.location.href = "confirmation.html?idOrder="+res.orderId;
 
     })
     .catch(function(err){
