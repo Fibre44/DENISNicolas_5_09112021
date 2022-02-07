@@ -1,28 +1,26 @@
 function getAllKanaps () {
     fetch ("http://localhost:3000/api/products")
     .then(function(res) {
-        try{
-            console.log('La reponse est '+res)
-            if (res.ok) {
-                return res.json();
-                }
-        }
-        catch{
-            console.error('Erreur conversion JSON'); 
-        }
+        if (res.ok) {
+            return res.json();
+        }        
     })
-        .then(function(kanaps) {
-            try{
-                addKanaps(kanaps);
+    .catch(function (err){
+        console.error("erreur de connexion au serveur/conversion de la réponse ",err);
+    })
+    .then(function(kanaps) {
+      
+         addKanaps(kanaps);      
+    })
 
-            }
-            catch{
-                console.error('Erreur lors de l ecriture sur la page');
-            }
-        })
+    .catch(function (err){
+
+        console.error("Erreur lors de l ecriture sur la page ", err);           
+
+    })
 
     .catch(function(err) {
-        console.error('Impossible de joindre le serveur',err)
+        console.error("Impossible de joindre le serveur",err);
   });
 }
 

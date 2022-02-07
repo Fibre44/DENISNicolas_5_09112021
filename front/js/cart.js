@@ -1,3 +1,5 @@
+//récupération des informations du localStorage + écriture
+
 const cart = document.getElementById("cart__items");
 
 //lecture du local storage
@@ -10,78 +12,35 @@ for( let i = 0; i < localStorage.length; i++){
   .then(function (response) {
 
     //Consigne OpenClassRooms on ne stocke pas le prix dans le local storage solution => on réalise un appel API pour obtenir le produit afin de récupérer son prix
-    return response.price
+    return response
     })
 
-    .then(function (price){
+    .then((kanap) => {
 
-      updateDomOrders(order,price);
+      updateDomOrders(order,kanap);
 
       updateDomArticlePrice();
 
     })
 
-    .then(function (){
+    .then( () => {
 
     //Gestion de la suppression d'un élément
 
-    //this représente l'élement en cours
+      addDelete();
 
-    const deleteButton = document.querySelectorAll('.deleteItem');
-
-    for (let i = 0; i < deleteButton.length;i++){
-      let buttonClick = deleteButton[i];
-      buttonClick.addEventListener('click',function(){
-
-        //mise à jour du DOM
-        let idKanapDelete = searchDataId(this);
-        let section = document.getElementById('cart__items');
-        let articles = document.getElementsByTagName('article');
-        for (article of articles){
-          if (idKanapDelete == article.getAttribute('data-id')){
-            console.log('id en cours '+article.getAttribute('data-id'));
-            section.removeChild(article);
-          }
-        }
-        //mise à jour localstorage
-        console.log('Le parent est '+idKanapDelete);
-        localStorage.removeItem(idKanapDelete);
-
-        //mise à jour des totaux
-        updateDomArticlePrice()
-
-      });
-
-    }
     //Gestion mise à jour quantité
 
-    const updateQuantity = document.querySelectorAll('.itemQuantity');
-
-    for (let i = 0; i < updateQuantity.length; i++){
-      let updateClick = updateQuantity[i];
-      //updateClick contient la valeur de le la balise input
-
-      updateClick.addEventListener('click',function(){
-        
-        //mise à jour du DOM
-        let quantityDom = this.previousElementSibling;
-        quantityDom.textContent = "Qté : "+updateClick.value;//balise <p> qui contient le prix en euros
-
-        //mise à jour localStorage
-        let idKanapUpdateQuantity = searchDataId(this);
-        let kanapUpdateQuantityOrder = getLocalStorage(idKanapUpdateQuantity);
-        kanapUpdateQuantityOrder.quantity = updateClick.value;
-        setLocalStorage(idKanapUpdateQuantity,kanapUpdateQuantityOrder);
-
-        //mise à jour des totaux
-        updateDomArticlePrice()
- 
-      })
-    }
-
+      addUpdate()
     })
 
-    .catch(function (req) {
+    .catch((err) => {
+
+      console.error("Erreur lors de l'ajout des listenner ",err)
+    })
+
+
+    .catch( (req) => {
     console.error("Le serveur retourne une erreur",req)
     });
 
@@ -92,7 +51,7 @@ for( let i = 0; i < localStorage.length; i++){
  * @param {objet} order 
  */
 
-function updateDomOrders(order,price){
+function updateDomOrders(order,kanapDetail){
   let kanap = document.createElement("article");
   kanap.setAttribute("data-id",order.id+order.color);
   kanap.classList.add("cart__item");
@@ -104,6 +63,7 @@ function updateDomOrders(order,price){
 
   let kanapImg = document.createElement("img");
   kanapImg.src = order.img;
+  kanapImg.alt = kanapDetail.altTxt;
   kanapDiv.appendChild(kanapImg);
 
   let kanapItemContent = document.createElement("div");
@@ -119,7 +79,7 @@ function updateDomOrders(order,price){
   kanapItemTitlePrice.appendChild(kanapName);
 
   let kanapPrice = document.createElement("p");
-  kanapPrice.textContent = price+" €";
+  kanapPrice.textContent = kanapDetail.price+" €";
   kanapItemTitlePrice.appendChild(kanapPrice);
 
   let kanapSettingOption = document.createElement("div");
@@ -157,6 +117,73 @@ function updateDomOrders(order,price){
 }
 
 /**
+ * la fonction va ajouter un listenner sur l'ensemble les éléments de la class deleteItem
+ */
+
+
+function addDelete(){
+
+  const deleteButton = document.querySelectorAll('.deleteItem');
+
+  for (let i = 0; i < deleteButton.length;i++){
+    let buttonClick = deleteButton[i];
+    buttonClick.addEventListener('click',function(){
+    //this représente l'élement en cours
+
+      //mise à jour du DOM
+      let idKanapDelete = searchDataId(this);
+      let section = document.getElementById('cart__items');
+      let articles = document.getElementsByTagName('article');
+      for (article of articles){
+        if (idKanapDelete == article.getAttribute('data-id')){
+          console.log('id en cours '+article.getAttribute('data-id'));
+          section.removeChild(article);
+        }
+      }
+      //mise à jour localstorage
+      console.log('Le parent est '+idKanapDelete);
+      localStorage.removeItem(idKanapDelete);
+
+      //mise à jour des totaux
+      updateDomArticlePrice()
+
+    });
+
+  }
+}
+
+/**
+ * la fonction va ajouter un listenner sur les éléments de la class itemQuantity
+ */
+
+function addUpdate(){
+
+  const updateQuantity = document.querySelectorAll('.itemQuantity');
+
+  for (let i = 0; i < updateQuantity.length; i++){
+    let updateClick = updateQuantity[i];
+    //updateClick contient la valeur de le la balise input
+
+    updateClick.addEventListener('change',function(){
+      
+      //mise à jour du DOM
+      let quantityDom = this.previousElementSibling;
+      quantityDom.textContent = "Qté : "+updateClick.value;//balise <p> qui contient le prix en euros
+
+      //mise à jour localStorage
+      let idKanapUpdateQuantity = searchDataId(this);
+      let kanapUpdateQuantityOrder = getLocalStorage(idKanapUpdateQuantity);
+      kanapUpdateQuantityOrder.quantity = updateClick.value;
+      setLocalStorage(idKanapUpdateQuantity,kanapUpdateQuantityOrder);
+
+      //mise à jour des totaux
+      updateDomArticlePrice()
+
+    })
+  }
+
+}
+/**
  * 
  * @param {integer} price 
  * @param {integer} quantity 
@@ -167,7 +194,12 @@ function updateDomArticlePrice(){
   console.log("Le local storage contient : "+localStorage.length);
 
   if (localStorage.length == 0){
-  
+
+    //on force les valeurs à 0 sinon problème d'actualisation du solde si on supprime l'ensemble des éléments du panier
+
+    const priceDom = document.getElementById("totalPrice");
+    const quantityDom = document.getElementById("totalQuantity");
+
     priceDom.textContent = "0";
     quantityDom.textContent = "0";
 

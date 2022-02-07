@@ -1,33 +1,37 @@
-fetch("http://localhost:3000/api/products/"+getParamURl('id'))
-  .then (function (res){
-    if (res.ok){
-      return res.json();
-    }
+
+/**
+ * la fonction va récupérer le produit getOneProduct retourne une Promise on lui passe en paramétre de recherche l'ID du produit
+*/
+getOneProduct(getParamURl('id'))
+  .then ((item) => {
+
+    addKanap(item);
+
+    //création d'un objet qui réprésente la commande en mémoire pour la tester si l'utilisateur souhaite ajouter une  l'article au panier.
+    kanap = newKanap(item._id,item.name,item.imageUrl,item.price);
+
   })
-    .then ((item) => {
 
-      addKanap(item);
+  .then(() => {
 
-      kanap = newKanap(item._id,item.name,item.imageUrl,item.price);
+    //ajout des controles sur la quantité et la couleur
+  
+    addListener();
 
-    })
+    //On lance la fonction de controle au chargement de la page pour bloquer le bouton tout de suite
+    buttonControle();
 
-      .then(() => {
 
-        buttonControle();
+  })
 
-        addListener();
+  .catch((err) => {
 
-      })
+      console.error('Erreur lors de la mise en place des listenners ou du controle',err)
+  })
 
-      .catch(function (err){
-
-        console.error('Erreur lors de la mise en place des listenners ou du controle',err)
-      })
-
-    .catch (function (err) {
+  .catch ((err) => {
       console.error('Erreur lors la mise à jour du DOM',err)
-    })
+  })
 
 
   .catch(function(err) {
@@ -72,9 +76,10 @@ function addKanapPrice (price){
 /**
  * 
  * @param {number} quantity 
- * @param {guid} id 
+ * @param {string} id 
  * @param {string} color 
- * @returns 
+ * @param {number} price
+ * @returns Retourne un objet qui représente le produit avec ses informations
  */
 
 function newKanap (id,name,img,price){
@@ -89,9 +94,9 @@ function newKanap (id,name,img,price){
 
 /**
  * 
- * @param {*} id 
- * @param {*} name 
- * @param {*} img 
+ * @param {string} id 
+ * @param {string} name 
+ * @param {string} img 
  * @returns un objet qui représente une commande qui sera ensuite enregistré dans le localStorage (MAJ OpenClassRooms on ne stocke pas le prix)
  */
 function newOrder(id,name,img){
@@ -189,18 +194,20 @@ function controleOption(option){
 const addBasketButton = document.getElementById('addToCart');
 addBasketButton.addEventListener('click', function(){
 
-  
+    //gestion de façon synchrone les étapes doivent s'enchainer de façon séquentiel 
+
+    //On commence par créer un objet commande avec toutes les informations de l'objet Kanap + les informations sur la quantité et la couleur
     let order = newOrder(kanap.id,kanap.name,kanap.img);
     console.log('Id du produit '+order.id+' la quantité est '+order.quantity+' la couleur est '+order.color+' le nom est '+order.name+' l image est stocké '+order.img);  
     
+    //On controle une nouvelle fois si la quantité et l'option sont biens renseignés
+    
     if (controleQuantity(order.quantity) == true && controleOption(order.color) == true){
       addBasketButton.textContent = "Erreur sur la commande vérifier la quantité et choisir une couleur";
-      console.log("Pas d' enregistrement dans le localStorage");
     }else{
       addBasketButton.textContent = "Ajouter au panier";
 
-      /*ajout au panier*/ 
-      /*Recherche si la commande existe déjà */
+      //Recherche si la commande existe déjà 
       let search = searchOrder(order.id+order.color);
       if (search == true){
         console.log("Mise à jour de la commande");
@@ -213,15 +220,26 @@ addBasketButton.addEventListener('click', function(){
         setLocalStorage(order.id+order.color,order);
       }
 
+      /** A voir si suppression
       const succesOrder = document.createElement("p");
       succesOrder.textContent = "La commande a été ajouté au panier";
       const succes = document.getElementsByClassName("item__content__addButton");
-
       succes[0].appendChild(succesOrder);
+
+      */
     }
+
+    //redirection vers le panier
+
+    document.location.href = "cart.html";
+
 
     
 });
+
+/**
+ * Controle que l'utilisateur indique bien une quantité et une couleur sinon on bloque le bouton
+ */
 
 function buttonControle(){
 
@@ -241,13 +259,17 @@ function buttonControle(){
  
 }
 
+/**
+ * Ajout des listenner pour lancer les controles lors la modifications de la quantité et de la couleurs
+ */
+
 function addListener(){
 
-  const quantity = document.getElementById("quantity").addEventListener("click",()=>{
+  document.getElementById("quantity").addEventListener("change",()=>{
     buttonControle();
   })
 
-  const option = document.getElementById("colors").addEventListener("change",()=>{
+  document.getElementById("colors").addEventListener("change",()=>{
     buttonControle();
   })
 }
