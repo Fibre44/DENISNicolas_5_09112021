@@ -1,5 +1,5 @@
 function getAllKanaps () {
-    fetch ("http://localhost:3000/api/products")
+    fetch (url+"/api/products")
     .then(function(res) {
         if (res.ok) {
             return res.json();

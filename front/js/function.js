@@ -1,3 +1,5 @@
+const urlServer = "http://192.168.1.21:3000"
+
 /**
  * La fonction va récupérer dans le local storage la commande
  * @param {string} key indiquer la concaténation de order.id + order.color 
@@ -33,7 +35,7 @@ function getOneProduct (id) {
 
   return new Promise (function (resolve, reject){
 
-      fetch("http://localhost:3000/api/products/"+id)
+      fetch(urlServer+"/api/products/"+id)
       .then (function (res){
         if (res.ok){
           resolve(res.json());
