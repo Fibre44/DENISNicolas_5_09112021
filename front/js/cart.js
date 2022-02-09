@@ -78,6 +78,11 @@ function updateDomOrders(order,kanapDetail){
   kanapName.textContent = order.name;
   kanapItemTitlePrice.appendChild(kanapName);
 
+  //Dans le fichier html la couleur n'est pas indiqué mais pour des raisons de lisibilité j'ajoute cette notion
+  let kanapOption = document.createElement("p");
+  kanapOption.textContent = order.color;
+  kanapItemTitlePrice.appendChild(kanapOption);
+
   let kanapPrice = document.createElement("p");
   kanapPrice.textContent = kanapDetail.price+" €";
   kanapItemTitlePrice.appendChild(kanapPrice);
