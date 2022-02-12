@@ -333,7 +333,11 @@ const email = document.getElementById('email').addEventListener('change',functio
 
 
 function validationEmail(email){
-  let emailRegex = new RegExp('^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$','g');
+
+  let emailRegex = new RegExp("^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$")
+  
+  //let emailRegex = new RegExp('^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.][a-z]{2,10}$','g')
+
   let testEmail = emailRegex.test(email.value);
   if (testEmail){
     const emailError = document.getElementById('emailErrorMsg').textContent='';
@@ -372,10 +376,10 @@ function validationFirstName(firstName){
 //gestion du nom
 
 const lastName = document.getElementById('lastName').addEventListener('change',function(){
-  validationLasteName(this);
+  validationLastName(this);
 })
 
-function validationLasteName(lastName){
+function validationLastName(lastName){
   let lastNameRegex = new RegExp("^[a-zA-Z ,.'-]+$",'g');
   let lastNameTest = lastNameRegex.test(lastName.value);
   if (lastNameTest){
@@ -388,6 +392,26 @@ function validationLasteName(lastName){
   errorForm()
 }
 
+//gestion de la ville ajout après la soutenance
+
+const city = document.getElementById('city').addEventListener('change',function(){
+  validationCity(this);
+})
+
+function validationCity(city){
+  let cityRegex = new RegExp("^[a-zA-Z ,.'-]+$",'g');
+  let cityTest = cityRegex.test(city.value);
+  if (cityTest){
+    const cityError = document.getElementById('cityErrorMsg').textContent='';
+
+  }else{
+    const cityError = document.getElementById('cityErrorMsg').textContent='Une ville ne peut pas contenir de chiffre';
+
+  }
+  errorForm()
+}
+
+
 /**
  * 
  * Si un regex donne une erreur alors la fonction bloque le bouton du formulaire
@@ -399,16 +423,17 @@ function errorForm (){
   let emailTest = document.getElementById('emailErrorMsg').textContent;
   let fistNameTest = document.getElementById('firstNameErrorMsg').textContent;
   let lastNameTest = document.getElementById('lastNameErrorMsg').textContent;
+  let cityTest = document.getElementById('cityErrorMsg').textContent;
 
 
   console.log('email contien'+emailTest.length+' prénom contient'+fistNameTest.length);
 
-  if (emailTest.length > 0 || fistNameTest.length > 0 || lastNameTest.length > 0){
+  if (emailTest.length > 0 || fistNameTest.length > 0 || lastNameTest.length > 0 || cityTest.length > 0){
 
     button.disabled = true
 
   
-   }else if (emailTest.length == 0 && fistNameTest.length == 0 && lastNameTest.length == 0) {
+   }else if (emailTest.length == 0 && fistNameTest.length == 0 && lastNameTest.length == 0 && cityTest.length == 0) {
     button.disabled = false
    }
    

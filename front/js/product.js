@@ -171,7 +171,8 @@ function updateQuantity(uuid,quantity){
  */
 function controleQuantity(quantity){
 
-  if (quantity == 0 || quantity >100 ){
+  //modification suite à la soutenance
+  if (quantity <= 0 || quantity >100 ){
     return true
   }else{
     return false

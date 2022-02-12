@@ -3,3 +3,7 @@
 let orderId = getParamURl("idOrder");
 
 const orderDom = document.getElementById("orderId").textContent=orderId;
+
+
+//Correction suite à la soutenance 
+localStorage.clear();
